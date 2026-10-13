@@ -338,7 +338,7 @@ var anchor={el:0,at:Date.now()};
    still works, but nobody follows the conductor (everyone just uses Practice conducting).
    These two values are not secret: they only say WHICH database to talk to. Who may WRITE to it is
    decided by the database rules + the conductor's email and password (see SETUP.md).               */
-var SYNC={databaseURL:"",apiKey:""};
+var SYNC={databaseURL:"https://soundscape-9ebd5-default-rtdb.firebaseio.com",apiKey:"AIzaSyDKKQ1n7Va2HAqJwHd7ETMLdTIPkJUpp5A"};
 var isOwner=false,practice=false,playerView=false,lastRemote=null;
 var fb={live:false,off:null,idTok:null,refTok:null,exp:0,email:"",sse:null,sseOpen:false,err:""};
 
