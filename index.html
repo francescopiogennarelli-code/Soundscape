@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e9ecef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1114" media="(prefers-color-scheme: dark)">
 <title>Soundscape – conductor</title>
 <style>
 :root{
@@ -69,6 +71,8 @@ h2#ctitle{margin:0 0 10px;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:800;let
 .move{flex:none;margin:12px 0 0;padding:12px 14px;border-left:4px solid var(--acc);background:var(--panel);font-size:.95rem}
 .move b{display:block;font-size:.8rem;color:var(--mute);margin-bottom:2px}
 .cond-only{display:none}
+#w20box[hidden]{display:none!important}
+#w20btn{width:100%;margin-top:6px;white-space:normal;line-height:1.2;padding-top:8px;padding-bottom:8px}
 #cue{min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .chips,.rng,.banner,#ctitle{flex:none}
 body.conducting .cond-only{display:block}
@@ -160,6 +164,118 @@ body.conducting .size{display:flex}
 .reveal-in{margin-top:8px;padding:6px 14px 10px;border-left:3px solid var(--acc);background:var(--acc-soft);border-radius:0 10px 10px 0}
 .reveal-in[hidden]{display:none}
 .reveal-t{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:6px 0 2px}
+
+/* =====================================================================================================
+   PHONE / TABLET / TOUCH LAYER
+   Everything below only changes how the page behaves on touch devices and narrow screens.
+   Wide desktop windows are not affected by any rule in this block.
+   ===================================================================================================== */
+
+/* ---- touch basics (harmless on desktop) ---- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{overscroll-behavior-y:none}                       /* no accidental pull-to-refresh in the middle of the piece */
+button,input,label,.seg{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn,.ghost,.seg{-webkit-user-select:none;user-select:none}
+.btn:active{background:var(--acc-soft);border-color:var(--acc)}
+.btn.main:active{background:var(--acc);border-color:var(--acc);filter:brightness(.86)}
+.ghost:active{background:var(--acc-soft)}
+@media (hover:none){
+  .btn:hover,.ghost:hover{border-color:var(--line)}
+  .btn.main:hover{border-color:var(--acc)}
+}
+:root{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}   /* landscape notch */
+#scoreView{padding:calc(16px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) calc(24px + env(safe-area-inset-left,0px))}
+.acts{display:contents}
+#peers:empty{display:none}
+
+/* ---- every compact situation: narrow windows, phones, landscape phones ----
+   The page used to be locked to one screen and the text was shrunk to fit, which on a phone clipped rules
+   away completely. Here the cue area scrolls instead and the text keeps a readable size (set in fit()). */
+@media (max-width:860px), (max-height:560px) and (pointer:coarse){
+  main{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+       grid-template-rows:none!important;grid-auto-rows:max-content;align-content:start;padding:12px 16px 28px}
+  #cue{overflow:visible}
+  .rules{flex:none;overflow:visible}
+  .field{position:static}
+  #fig svg{max-height:none}                                 /* the per-figure caps set in the script still apply */
+  .ghost{min-height:40px}
+  .btn{min-height:52px}
+  #tbtn{flex:1;min-height:52px}
+  .seg{height:36px}
+  #scoreView .ghost{min-height:44px;padding:8px 18px}
+  .reveal-btn{min-height:48px}
+}
+
+/* ---- stacked (portrait phones, tablets, narrow windows): title first, then notation/animation, then the rules ---- */
+@media (max-width:860px){
+  main{grid-template-columns:minmax(0,1fr)!important;gap:0}
+  #cue{display:contents}
+  #cue>*{grid-column:1}
+  .banner{order:1;margin:0 0 4px;min-height:0}
+  .banner:empty{display:none}
+  .rng{order:2}
+  h2#ctitle{order:3;font-size:clamp(1.55rem,7vw,2.1rem);margin:0 0 12px}
+  .field{order:4;margin:0 0 14px}
+  .rules{order:5}
+  .timed{order:6}
+  #move{order:7}
+  #extra{order:8}
+  .cap{max-width:none}
+  .pace{padding:6px 14px 0}
+}
+
+/* ---- phones in portrait: slim header, big thumb-sized controls ---- */
+@media (max-width:620px){
+  .top{flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 14px 6px}
+  .top h1{font-size:1.25rem}
+  .top p{display:none}
+  .status{display:contents}
+  .status>span:first-child{order:1;flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:flex-end;font-size:.8rem}
+  #sync{min-width:0;white-space:normal;line-height:1.15;text-align:right}
+  .acts{order:2;display:flex;gap:6px;flex:1 1 100%}
+  .acts .ghost{flex:1 1 0;min-width:0;padding:4px 6px;font-size:.8rem;line-height:1.15}
+  .seg.now span{display:none}                                /* the label would be clipped in the narrow segments */
+  .seg.now{border-width:2px}
+
+  .dock{display:grid;grid-template-columns:1fr 1fr auto;gap:8px 12px;align-items:end;padding:8px 14px}   /* the page already pads for the home indicator */
+  .dock .grow{display:none}
+  .clock b{font-size:1.35rem}
+  .clock small{display:block;font-size:.68rem;line-height:1.2;margin-top:1px}
+  body.conducting .size{flex-direction:column;align-items:flex-start;gap:2px;font-size:.68rem}
+  .size input{width:70px;min-height:40px;font-size:16px;text-align:center}       /* 16px stops iOS zooming in when the field is tapped */
+  body.conducting .ctl{display:grid;grid-column:1/-1;grid-template-columns:56px 1fr 56px auto;gap:8px}
+  .ctl .btn{min-width:0;padding:0 8px}
+  .btn.main{font-size:1.1rem}
+  #reset{padding:0 14px;font-size:.85rem;color:var(--mute)}
+}
+
+/* ---- phones in landscape: cue on the left, notation/animation on the right, whole thing scrolls ---- */
+@media (min-width:620px) and (max-height:560px) and (pointer:coarse){
+  .top{padding:6px 16px 2px}
+  .top h1{font-size:1.15rem}
+  .top p{display:none}
+  .pace{padding:4px 16px 0}
+  .seg{height:26px}
+  main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:20px;padding:8px 16px 16px}
+  main.nofield{grid-template-columns:minmax(0,1fr)!important}
+  #cue{display:flex}
+  #cue>*{grid-column:auto}
+  .banner,.rng,h2#ctitle,.rules,.timed,#move,#extra,.field{order:0}
+  h2#ctitle{font-size:clamp(1.3rem,3.2vw,1.8rem);margin:0 0 8px}
+  .top{flex-wrap:nowrap;align-items:center;gap:10px}
+  .top h1{white-space:nowrap}
+  .status{flex:1;min-width:0;justify-content:flex-end;flex-wrap:nowrap;gap:10px;font-size:.78rem}
+  .status>span:first-child{display:flex;align-items:center;min-width:0}
+  #sync{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .acts .ghost{min-height:34px;padding:4px 10px;font-size:.78rem;white-space:nowrap}
+  .dock{flex-wrap:nowrap;padding:6px 16px;gap:12px}
+  .clock b{font-size:1.25rem}
+  .clock small{display:block;font-size:.65rem;line-height:1.15;max-width:150px}
+  .size{font-size:.75rem}
+  .size input{width:56px;font-size:16px}
+  .btn{min-height:44px;min-width:44px;padding:0 12px}
+  .btn.main{min-width:90px}
+}
 </style>
 </head>
 <body>
@@ -169,9 +285,11 @@ body.conducting .size{display:flex}
   <div class="status">
     <span><span class="dot" id="dot"></span><span id="sync">Starting…</span></span>
     <span id="peers"></span>
-    <button class="ghost" id="scoreBtn">View score</button>
-    <button class="ghost" id="modeBtn" hidden></button>
-    <button class="ghost" id="loginBtn" hidden></button>
+    <div class="acts">
+      <button class="ghost" id="scoreBtn">View score</button>
+      <button class="ghost" id="modeBtn" hidden></button>
+      <button class="ghost" id="loginBtn" hidden></button>
+    </div>
   </div>
 </header>
 
@@ -187,6 +305,7 @@ body.conducting .size{display:flex}
     <div class="timed" id="timed" hidden></div>
     <div class="move cond-only" id="move"></div>
     <div class="move cond-only" id="extra" hidden></div>
+    <div class="move cond-only" id="w20box" hidden><b>Rule 18</b><button class="btn main" id="w20btn" type="button">Everyone has stopped. Start 20 s</button></div>
   </section>
 
   <aside class="field" id="field" hidden>
@@ -216,6 +335,7 @@ body.conducting .size{display:flex}
 <script>
 (function(){
 "use strict";
+var COMPACT=window.matchMedia("(max-width:860px), (max-height:560px) and (pointer:coarse)"),COARSE=window.matchMedia("(pointer:coarse)");
 
 /* ------------------------------------------------------------------ score */
 var R=function(n,t,k){return {n:n,t:t,k:k||""}};
@@ -264,7 +384,7 @@ var CUES=[
    R("16","to make the direction clearer, you should only play when a near musician it’s playing, and don’t hold the note for too long."),
    R("17","left to right, start dead slow, and each time get a bit faster."),
    R("18","you can eather stop or keep repeating, when everyone have stopped wait for 20 seconds")],
-  move:"When everyone has stopped, wait 20 seconds before moving on."},
+  move:"When everyone has stopped, press the Rule 18 button to start the 20 s countdown (players see it). Then move on."},
  {id:"19-22",rng:"Rules 19–22",title:"Long notes, the white dot",viz:"settle",w:10,
   pitches:[["1","","label"],["F"],["2","","label"],["♯F","highest ↑"],["3","","label"],["B"],["4","","label"],["♯C","lowest ↓"]],
   rules:[
@@ -326,7 +446,7 @@ CUES.forEach(function(c){c.steps=[c.rules.map(function(_,i){return i})]});
 var TIMED=[{s:20,l:"E  F"},{s:30,l:"D  G"},{s:45,l:"E F  or  D G"}];
 var CAPS={
  ripple:"Sound spreads out from whoever plays first.",
- sweep:"Sound passes from the left of the ensemble to the right, a little faster each time.",
+ sweep:"Sound passes from the left of the ensemble to the right, a little faster each time. Then players stop. When everyone has stopped, the conductor starts a 20 second wait.",
  quiet:"As quiet as possible. Start when you feel like it.",
  settle:"Long notes. The room settles toward one stable sound.",
  scatter:"Random, scattered notes. Then slower, then held.",
@@ -338,12 +458,12 @@ var CAPS={
 var SUM_W=CUES.reduce(function(a,c){return a+c.w},0);
 
 /* ----------------------------------------------------------------- state */
-var DEFAULT={idx:0,step:0,running:false,base:0,t0:null,cueBase:0,n:25,ts:0};
+var DEFAULT={idx:0,step:0,running:false,base:0,t0:null,cueBase:0,n:25,ts:0,w20:null};   /* w20: piece-clock ms when the conductor started rule 18's 20 s wait (null = not started) */
 var S=Object.assign({},DEFAULT);
 var anchor={el:0,at:Date.now()};
 /* =====================================================================================
    LIVE SYNC SETTINGS: paste your two Firebase values here (see SETUP.md). Leave empty and the page
-   still works, but nobody follows the conductor (everyone just uses Practice conducting).
+   still works, but nobody follows the conductor (everyone just uses Practice mode).
    These two values are not secret: they only say WHICH database to talk to. Who may WRITE to it is
    decided by the database rules + the conductor's email and password (see SETUP.md).               */
 var SYNC={databaseURL:"https://soundscape-9ebd5-default-rtdb.firebaseio.com",apiKey:"AIzaSyDKKQ1n7Va2HAqJwHd7ETMLdTIPkJUpp5A"};
@@ -381,7 +501,7 @@ function start(){ commit({running:true,t0:Date.now()}) }
 function pause(){ commit({running:false,base:elapsed(),t0:null}) }
 function go(i){
   i=Math.max(0,Math.min(CUES.length,i));
-  var e=elapsed(), p={idx:i,step:0,cueBase:e};
+  var e=elapsed(), p={idx:i,step:0,cueBase:e,w20:null};
   if(i>=CUES.length){p.running=false;p.base=e;p.t0=null}
   commit(p);
 }
@@ -391,14 +511,14 @@ function nextStep(){
 }
 function prevStep(){
   if(S.step>0) commit({step:S.step-1});
-  else if(S.idx>0) commit({idx:S.idx-1,step:CUES[S.idx-1].steps.length-1,cueBase:elapsed()});
+  else if(S.idx>0) commit({idx:S.idx-1,step:CUES[S.idx-1].steps.length-1,cueBase:elapsed(),w20:null});
 }
 var resetArmed=false,resetTimer=null;
 function reset(){
   var b=document.getElementById("reset");
   if(!resetArmed){resetArmed=true;b.textContent="Confirm";clearTimeout(resetTimer);resetTimer=setTimeout(function(){resetArmed=false;b.textContent="Reset"},3000);return}
   resetArmed=false;b.textContent="Reset";
-  commit({idx:0,running:false,base:0,t0:null,cueBase:0});
+  commit({idx:0,running:false,base:0,t0:null,cueBase:0,w20:null});
 }
 
 /* ---------------------------------------------------------------- render */
@@ -417,6 +537,7 @@ function render(){
 
   if(shownIdx!==S.idx||shownStep!==S.step){
     var newCue=shownIdx!==S.idx; shownIdx=S.idx; shownStep=S.step;
+    var scr=document.querySelector("main"); if(scr) scr.scrollTop=0;
     var grp=c.steps[Math.min(S.step,c.steps.length-1)];
     $("rng").textContent=c.rng||"";
     $("ctitle").textContent=c.title;
@@ -449,7 +570,7 @@ function render(){
   }
   var b=$("banner");
   if(fin) b.textContent="";
-  else if(!S.running && elapsed()===0) b.textContent=conducting()?"Press Start (or Space) to begin":"Waiting for the conductor to begin";
+  else if(!S.running && elapsed()===0) b.textContent=conducting()?(COARSE.matches?"Press Start to begin":"Press Start (or Space) to begin"):"Waiting for the conductor to begin";
   else if(!S.running) b.textContent="Paused";
   else b.textContent="";
 
@@ -470,9 +591,9 @@ function status(){
     mb.hidden=false; mb.textContent=playerView?"Back to conducting":"Preview as player";
   }else{
     if(!SYNC.databaseURL){s.textContent="Live sync is not set up yet (see SETUP.md)"}
-    else if(practice){s.textContent="Practice. Not shared with players";dot.className="dot";mb.textContent="Follow the conductor"}
-    else{s.textContent=live?"Following the conductor":"Not connected to a conductor";dot.className="dot"+(live?" on":"");}
-    if(practice) mb.textContent="Follow the conductor"; else mb.textContent="Practice conducting";
+    else if(practice){s.textContent="Practice mode. Not shared with players";dot.className="dot";mb.textContent="Concert mode"}
+    else{s.textContent=live?"Concert. Following the conductor":"Concert. Not connected to a conductor";dot.className="dot"+(live?" on":"");}
+    if(practice) mb.textContent="Concert mode"; else mb.textContent="Practice mode";
     mb.hidden=false;
   }
 }
@@ -577,6 +698,9 @@ Object.keys(STAFFLIST).forEach(function(id){
 /* shrink or grow the rule text so every rule of the section is visible without scrolling */
 function fit(){
   var r=$("rules"); if(!r||!r.children.length) return;
+  if(COMPACT.matches){                      /* phones / tablets: readable size, the cue area scrolls */
+    var cw=r.clientWidth||320; r.style.setProperty("--rs",Math.max(17,Math.min(26,Math.round(cw/19)))+"px"); return;
+  }
   var lo=11,hi=96,best=lo;
   while(lo<=hi){
     var m=(lo+hi)>>1; r.style.setProperty("--rs",m+"px");
@@ -596,6 +720,16 @@ function tick(){
   var segs=$("pace").children;
   if(!fin&&segs[S.idx]){ var f=Math.min(1,ce/(tg[S.idx]||1)); segs[S.idx].firstElementChild.style.width=(f*100)+"%" }
   for(var i=0;i<segs.length;i++){ if(i!==S.idx) segs[i].firstElementChild.style.width="" }
+  var wb=$("w20box");
+  if(wb){
+    var on=!fin&&CUES[S.idx].id==="15-18";
+    if(wb.hidden===on){wb.hidden=!on; fit()}
+    if(on){
+      var wl=$("w20btn"),st=S.w20!=null,rem=st?Math.max(0,20-(e-S.w20)/1000):20;
+      wl.disabled=st?rem<=0:!S.running;
+      wl.textContent=!st?"Everyone has stopped. Start 20 s":(rem>0?"20 s running, "+Math.ceil(rem)+" left. Tap to cancel":"20 s done. Press \u25b6 to move on");
+    }
+  }
   if(CUES[S.idx]&&CUES[S.idx].timed&&$("tbig")){
     var big=$("tbig"),btn=$("tbtn"),sec=tm.on?(Date.now()-tm.t0)/1000:0,acc=0,cur=-1,left=0;
     if(tm.on){ for(var j=0;j<TIMED.length;j++){ if(sec<acc+TIMED[j].s){cur=j;left=acc+TIMED[j].s-sec;break} acc+=TIMED[j].s } }
@@ -673,8 +807,13 @@ function layout(){
 }
 function resize(){
   var cfg=FIGCFG[figId]; if(!cfg) return;
-  var rw=$("field").getBoundingClientRect().width||300, capk=window.innerWidth<=860?.5:1;
-  cv.style.height=Math.round(Math.min(rw*cfg.aspect,window.innerHeight*cfg.cap*capk))+"px";
+  var rw=$("field").getBoundingClientRect().width||300, cmp=COMPACT.matches;
+  if(cmp){
+    var lim=Math.max(230,window.innerHeight*cfg.cap*(window.innerWidth<=860?.72:1));
+    cv.style.height=Math.round(Math.min(rw*cfg.aspect*(window.innerWidth<=860?1.12:1),lim))+"px";
+  }else{
+    cv.style.height=Math.round(Math.min(rw*cfg.aspect,window.innerHeight*cfg.cap))+"px";   /* desktop: unchanged */
+  }
   var r=cv.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
   W=r.width;H=r.height;cv.width=Math.round(W*d);cv.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);
   layout();drawStill();
@@ -704,7 +843,7 @@ function drawPanel(p,t,cfg,idx){
     var lx=p.x+ins*(1-fy)+padX,rx=p.x+p.w-ins*(1-fy)-padX,px=lx+u*(rx-lx);
     if(s){var dist=Math.hypot(px-s[0],py-s[1])/diag;v=Math.max(Math.exp(-Math.pow((dist-rr)/.06,2)),dist<rr?.3*(1-rr/1.35):0)}
     else v=Math.exp(-Math.pow((d.nx-front)/.1,2))+(d.nx<front?.14:0);
-    dot(px,py,Math.min(1,v),sc);
+    dot(px,py,Math.min(1,v)*(cfg.kind==="sweep"?sweepAct(d.k):1),sc);
   }
   ctx.restore();
   if(s){
@@ -721,7 +860,8 @@ function drawTree(){
   ctx.moveTo(.65*W,.15*H);ctx.lineTo(.75*W,.22*H);ctx.lineTo(.85*W,.15*H);ctx.moveTo(.75*W,.22*H);ctx.lineTo(.75*W,.24*H);
   ctx.moveTo(.25*W,.24*H);ctx.lineTo(.5*W,.31*H);ctx.lineTo(.75*W,.24*H);ctx.moveTo(.5*W,.31*H);ctx.lineTo(.5*W,.35*H);ctx.stroke();
 }
-var STEPN=0,STEPL=0,CPH=0,CD=60;
+var STEPN=0,STEPL=0,CPH=0,CD=60,SWP=0,SWW=-1;   /* SWP: progress of the sweeps 0..1 | SWW: progress of the 20 s wait 0..1 (-1 = not waiting) */
+function sweepAct(k){var st=.5+.4*k;return Math.max(0,Math.min(1,(st+.05-SWP)/.05))}   /* each dot (player) stops at its own moment */
 /* rules 19-22: the tree drawn in the score (one stem -> 2 -> 4 -> 8 tips, each ending in a Y).
    The sound starts at the white dot = root of the tree and travels out along the branches. */
 function buildTree(p){
@@ -832,15 +972,38 @@ function draw(t,dt){
   var ci=CUES.findIndex(function(c){return c.id===figId}),D=Math.max(8,(ci>=0?targets()[ci]:60000)/1000);
   var cueT=(S.running||elapsed()>0)?Math.max(0,(elapsed()-S.cueBase)/1000):(performance.now()-figT0)/1000;
   var rawT=cueT;cueT=cueT%D;CPH=cueT;CD=D;
-  if(cfg.kind==="sweep"){                       /* sweeps get faster each time; the whole run is stretched to fill the section */
-    var c0=D/37,tau=cueT/c0,n=0,per;
-    for(;n<60;n++){per=Math.max(1.3,8*Math.pow(.82,n));if(tau<per)break;tau-=per}
-    sweepPhase=n+tau/per;
+  if(cfg.kind==="sweep"){                       /* sweeps get faster each time; the run is stretched to fill the section */
+    var wS=Math.min(20,D*.4),sD=D-wS,lv=(S.running||elapsed()>0);
+    if(lv&&S.w20!=null){                         /* rule 18: the conductor has started the 20 s wait */
+      SWP=1;SWW=Math.max(0,Math.min(1,(elapsed()-S.w20)/20000));sweepPhase=0;
+    }else{                                       /* no automatic wait: after the last sweep it holds until the conductor starts it */
+      var sT=lv?rawT:rawT%(sD+6);SWW=-1;
+      if(sT<sD){
+        SWP=sT/sD;
+        var c0=sD/37,tau=sT/c0,n=0,per;
+        for(;n<60;n++){per=Math.max(1.3,8*Math.pow(.82,n));if(tau<per)break;tau-=per}
+        sweepPhase=n+tau/per;
+      }else{SWP=1;sweepPhase=0}
+    }
   }
   if(cfg.kind==="four"){var sd=D/4;STEPN=Math.floor(cueT/sd)%4;STEPL=(cueT%sd)/sd;drawOrderHeader()}
   PN.forEach(function(p,i){drawPanel(p,t,cfg,i)});
   if(cfg.kind==="four") drawOrderFlow(cueT);
-  if(cfg.kind==="sweep"){var p=PN[0];label("LF",p.x,p.y+p.h+22,18);label("RT",p.x+p.w,p.y+p.h+22,18,"right")}
+  if(cfg.kind==="sweep"){
+    var q=PN[0];label("LF",q.x,q.y+q.h+22,18);label("RT",q.x+q.w,q.y+q.h+22,18,"right");
+    var sc2=SWW>=1?"20 s done \u00b7 move on":(SWW>=0?"everyone has stopped \u00b7 wait 20 s":(SWP>=1?"stop or repeat \u00b7 conductor starts the 20 s":(SWP>.5?"stop, or keep repeating":"")));
+    if(sc2) label(sc2,q.x+q.w/2,q.y+q.h+22,Math.max(11,Math.min(15,W/26)),"center");
+    if(SWW>=0){                                      /* rule 18: countdown of the 20 s silence */
+      var cx=q.x+q.w/2,cy=q.y+q.h*.5,rr2=Math.min(q.w,q.h)*.2,left=1-SWW;
+      ctx.save();
+      ctx.globalAlpha=.9;ctx.fillStyle=col.panel;ctx.beginPath();ctx.arc(cx,cy,rr2+12,0,6.283);ctx.fill();ctx.globalAlpha=1;
+      ctx.lineWidth=Math.max(4,rr2*.14);ctx.lineCap="round";
+      ctx.strokeStyle=col.line;ctx.beginPath();ctx.arc(cx,cy,rr2,0,6.283);ctx.stroke();
+      ctx.strokeStyle=col.acc;ctx.beginPath();ctx.arc(cx,cy,rr2,-Math.PI/2,-Math.PI/2+6.283*left);ctx.stroke();
+      label(String(Math.ceil(20*left)),cx,cy+rr2*.36,Math.round(rr2),"center");
+      ctx.restore();
+    }
+  }
   if(cfg.kind==="four"){
     /* each panel is one of the numbered notes on the staff below: boxed number (as in the score) + note name */
     var NOTE=[["F",0],["\u266fF",1],["B",0],["\u266fC",-1]];
@@ -896,7 +1059,12 @@ function frame(now){
   if(!reduce&&!document.hidden&&figId&&FIGCFG[figId]&&!$("field").hidden) draw(t,dt);
   requestAnimationFrame(frame);
 }
-window.addEventListener("resize",resize);
+var lastVW=window.innerWidth,lastVH=window.innerHeight;
+window.addEventListener("resize",function(){
+  var w=window.innerWidth,h=window.innerHeight;
+  if(COARSE.matches&&w===lastVW&&Math.abs(h-lastVH)<150) return;
+  lastVW=w;lastVH=h;resize();
+});
 window.addEventListener("resize",function(){fit()});
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){fit()});
 if(window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener&&matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){readColors();if(reduce)draw(3,0)});
@@ -912,6 +1080,10 @@ $("play").addEventListener("click",function(){ S.running?pause():start() });
 $("next").addEventListener("click",function(){ nextStep() });
 $("prev").addEventListener("click",function(){ prevStep() });
 $("reset").addEventListener("click",reset);
+$("w20btn").addEventListener("click",function(){          /* rule 18: the conductor starts (or cancels) the 20 s wait */
+  if(!conducting()) return;
+  if(S.w20!=null) commit({w20:null}); else if(S.running) commit({w20:elapsed()});
+});
 $("nIn").addEventListener("change",function(){
   var v=Math.max(4,Math.min(50,parseInt(this.value,10)||30)); this.value=v; layout(); commit({n:v});
 });
@@ -1016,6 +1188,19 @@ async function init(){
   fbClock(); fbListen();
   shownIdx=-2; render();
 }
+/* keep the screen on while the page is open: phones otherwise dim and lock in the middle of the piece */
+(function(){
+  var lock=null,pending=false;
+  function want(){
+    if(!("wakeLock" in navigator)||document.hidden||lock||pending) return;
+    pending=true;
+    navigator.wakeLock.request("screen").then(function(l){pending=false;lock=l;l.addEventListener("release",function(){lock=null})}).catch(function(){pending=false});
+  }
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) want() });
+  document.addEventListener("pointerdown",want,{passive:true});
+  want();
+})();
+
 init();
 })();
 </script>
